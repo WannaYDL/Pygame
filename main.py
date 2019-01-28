@@ -12,7 +12,6 @@ def main():
     bg_color = BG_COLOR
     #建立方块对象
     piece = Piece('S',screen)
-
     #pygame.event.get():从事件队列中取出所有事件对象，
     #得到待处理事件列表
     while True:
@@ -68,6 +67,7 @@ def check_events(piece):
                 piece.move_down()
             elif event.key == pygame.K_UP:
                 print("向上方向键被按下")
+                piece.turn()
             elif event.key == pygame.K_RIGHT:
                 print("向右方向键被按下")
                 piece.move_right()
