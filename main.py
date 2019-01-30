@@ -1,20 +1,31 @@
 #print("hello world!")
 import sys
 import  pygame
+import  random
+import  time
 from settings import *
 from piece import Piece
+from gamewall import  GameWall
 
 def main():
     pygame.init()#初始化
     #创建屏幕对象
     screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
     pygame.display.set_caption("俄罗斯方块")
+    pygame.key.set_repeat(10,100)
     bg_color = BG_COLOR
     #建立方块对象
-    piece = Piece('S',screen)
+    #piece = Piece('J',screen)
+    random.seed(int(time.time()))   #产生不同的随机序列
+    piece = Piece(random.choice(PIECE_TYPES),screen)
+    game_wall = GameWall(screen)
+
     #pygame.event.get():从事件队列中取出所有事件对象，
     #得到待处理事件列表
     while True:
+        if piece.is_on_botton:
+            game_wall.add_to_wall(piece)
+            piece = Piece(random.choice(PIECE_TYPES),screen)
         #监视键盘和鼠标事件
         check_events(piece)
 
@@ -74,5 +85,7 @@ def check_events(piece):
             elif event.key == pygame.K_LEFT:
                 print("向左方向键被按下")
                 piece.move_left()
+            elif event.key == pygame.K_f:
+                piece.fall_down()
 
 main()
