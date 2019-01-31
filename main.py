@@ -6,86 +6,72 @@ import  time
 from settings import *
 from piece import Piece
 from gamewall import  GameWall
+from gamedisplay import GameDisplay
+from gamestate import GameState
 
 def main():
     pygame.init()#初始化
     #创建屏幕对象
     screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
     pygame.display.set_caption("俄罗斯方块")
-    pygame.key.set_repeat(10,100)
+    pygame.key.set_repeat(10,100)   #按下按键超过10ms触发下一次按键
     bg_color = BG_COLOR
     #建立方块对象
     #piece = Piece('J',screen)
     random.seed(int(time.time()))   #产生不同的随机序列
-    piece = Piece(random.choice(PIECE_TYPES),screen)
-    game_wall = GameWall(screen)
+
+    #定义一个二维数组，且全部初始化为'_'
+    #game_wall = GameWall(screen)
+    # random.choice(range)在范围内随机选取一个作为返回值
+    #piece = Piece(random.choice(PIECE_TYPES), screen,game_wall)
+    game_state = GameState(screen)
 
     #pygame.event.get():从事件队列中取出所有事件对象，
     #得到待处理事件列表
     while True:
-        if piece.is_on_botton:
-            game_wall.add_to_wall(piece)
-            piece = Piece(random.choice(PIECE_TYPES),screen)
+        #当前方块触底
+        if game_state.piece.is_on_botton:
+            #将当前方块标记为wall
+            game_state.wall.add_to_wall(game_state.piece)
+            #生成新的方块在游戏区域最上
+            piece = Piece(random.choice(PIECE_TYPES),screen,game_state.wall)
         #监视键盘和鼠标事件
-        check_events(piece)
+        check_events(game_state.piece)
 
         #填充屏幕背景颜色
         screen.fill(bg_color)
         #绘制游戏区域
-        draw_game_area(screen)
+        GameDisplay.draw_game_area(screen,game_state.wall)
         #绘制小方块
         #draw_cell(screen,GAME_AREA_LEFT+GAME_AREA_WIDTH//2,GAME_AREA_TOP)
-        piece.paint()
+        game_state.piece.paint()
         #让最近绘制的屏幕可见
         pygame.display.flip()
 
-    # 原型：pygame.draw.line(Surface, color, start_pos, end_pos, width=1): return Rect
-    # 用途：绘制直线段，start_pos 和 end_pos 分别表示起始点和终止点，用坐标表示。
-    # width为线条宽度，默认为1. 线条两端自然结束，没有明显的端点（如实心黑点
-def draw_game_area(screen):
-    #绘制顶部边界
-    pygame.draw.line(screen,EDGE_COLOR,(GAME_AREA_LEFT,GAME_AREA_TOP),(GAME_AREA_LEFT+GAME_AREA_WIDTH,GAME_AREA_TOP))
-    #绘制底部边界
-    pygame.draw.line(screen,EDGE_COLOR,(GAME_AREA_LEFT,GAME_AREA_TOP+15*CELL_WIDTH),(GAME_AREA_LEFT+10*CELL_WIDTH,GAME_AREA_TOP+15*CELL_WIDTH))
-    #绘制左侧边界
-    pygame.draw.line(screen,EDGE_COLOR,(GAME_AREA_LEFT,GAME_AREA_TOP),(GAME_AREA_LEFT,GAME_AREA_TOP+15*CELL_WIDTH))
-    #绘制右侧边界线
-    pygame.draw.line(screen,EDGE_COLOR,(GAME_AREA_LEFT+GAME_AREA_WIDTH,GAME_AREA_TOP),(GAME_AREA_LEFT+GAME_AREA_WIDTH,GAME_AREA_TOP+GAME_AREA_HEIGHT))
-    #绘制网格
-    for num in range(1,15):
-        pygame.draw.line(screen,EDGE_COLOR,(GAME_AREA_LEFT,GAME_AREA_TOP+num*CELL_WIDTH),(GAME_AREA_LEFT+GAME_AREA_WIDTH,GAME_AREA_TOP+num*CELL_WIDTH))
-    for num in range(1,10):
-        pygame.draw.line(screen,EDGE_COLOR,(GAME_AREA_LEFT+num*CELL_WIDTH,GAME_AREA_TOP),(GAME_AREA_LEFT+num*CELL_WIDTH,GAME_AREA_TOP+GAME_AREA_HEIGHT))
-'''
-def draw_cell(screen,left,top):
-    #绘制单元格和小方格
-    #left：单元格离窗口左边界距离，单位是像素
-    #top ：单元格离窗口上边界的距离
-    cell_left_top = (left,top)                      #小方格左上角坐标点
-    cell_width_height = (CELL_WIDTH,CELL_WIDTH)     #小方格的宽度和高度
-    #生成由左上坐标和宽度高度生成的矩形
-    cell_rect = pygame.Rect(cell_left_top,cell_width_height)
-    pygame.draw.rect(screen,CELL_COLOR,cell_rect)   #绘制正方形
-'''
 def check_events(piece):
     '''捕捉和处理键盘按键事件'''
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_DOWN:
-                print("向下方向键被按下")
-                piece.move_down()
-            elif event.key == pygame.K_UP:
-                print("向上方向键被按下")
-                piece.turn()
-            elif event.key == pygame.K_RIGHT:
-                print("向右方向键被按下")
-                piece.move_right()
-            elif event.key == pygame.K_LEFT:
-                print("向左方向键被按下")
-                piece.move_left()
-            elif event.key == pygame.K_f:
-                piece.fall_down()
+            on_key_down(event,piece)
+        elif event.type == pygame.USEREVENT:
+            piece.move_down()
+
+def on_key_down(event,piece):
+    if event.key == pygame.K_DOWN:
+        print("向下方向键被按下")
+        piece.move_down()
+    elif event.key == pygame.K_UP:
+        print("向上方向键被按下")
+        piece.turn()
+    elif event.key == pygame.K_RIGHT:
+        print("向右方向键被按下")
+        piece.move_right()
+    elif event.key == pygame.K_LEFT:
+        print("向左方向键被按下")
+        piece.move_left()
+    elif event.key == pygame.K_f:
+        piece.fall_down()
 
 main()

@@ -7,3 +7,7 @@ print(area)
 area.append(line)
 print(area)
 
+c,r =(12,15)
+print(c,"sdf ",r)
+for  c in range(5):
+    print(c," ")
