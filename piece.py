@@ -1,10 +1,8 @@
 #TetrisGame/piece.py
-
 from settings import *
 from pygame import *
 import pygame
 from  gamedisplay import GameDisplay
-
 
 class Piece():
     def __init__(self,shape,screen,gamewall):
